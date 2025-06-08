@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>OCFRD/OCSO Active Calls Map</title>
+        <link rel="stylesheet" href="./style.css">
+        <script src="https://cdn.jsdelivr.net/npm/luxon@3.6.1/build/global/luxon.min.js"></script>
+    </head>
+    <body>
+        <noscript>Enable JavaScript to view this website.</noscript>
+        <div id="map"></div>
+        <div class="fab" aria-label="Open information menu" onclick="setFabMenuVisible(!isFabMenuVisible())">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 9H11V7H13V9M14 15V17H10V15H11V13H10V11H13V15H14Z" /></svg>
+        </div>
+        <div class="fab-menu" id="fab-menu" style="display: none">
+            <div class="fab-menu-header" aria-label="Close information menu" onclick="setFabMenuVisible(false)">
+                <h1>OCFRD/OCSO Active Calls Map</h1>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" /></svg>
+            </div>
+            <div class="fab-menu-body">
+                <span>Displays a list of dispatched calls for service from the sheriff's office and fire rescue department in Orange County, FL.</span>
+                <span>
+                    All data sourced from
+                    <a href="https://www.ocso.com/en-us/calls-for-service" rel="noopener" target="_blank">Orange County Sheriff's Office</a>
+                    and
+                    <a href="https://www.orangecountyfl.net/EmergencySafety/FireRescue/ActiveCalls.aspx" rel="noopener" target="_blank">PulsePoint</a>.
+                </span>
+                <span>
+                    Created by
+                    <a href="https://zachspri.ng" target="_blank" rel="noopener">Zach Spring</a>
+                </span>
+                <span>
+                    <label>
+                        OCFRD
+                        <input type="checkbox" checked onclick="refreshMarkers(this.checked, undefined)">
+                    </label>
+                    <label>
+                        OCSO
+                        <input type="checkbox" checked onclick="refreshMarkers(undefined, this.checked)">
+                    </label>
+                </span>
+            </div>
+        </div>
+        <script>
+            (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({
+                // this API key is restricted, don't even think about using it :^)
+                key: "AIzaSyAt5ILcPTfHVArwhRIfjrXjLiPnn5N9gN4",
+                v: "weekly",
+            });
+        </script>
+        <script src="./map.js"></script>
+    </body>
+</html>

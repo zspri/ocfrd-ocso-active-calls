@@ -1,39 +1,42 @@
 let map
 
-let frMarkers = []
-let frTooltips = []
+const markers = {
+    ocfr: [],
+    ocso: [],
+    scso: [],
+}
 
-let soMarkers = []
-let soTooltips = []
+const tooltips = {
+    ocfr: [],
+    ocso: [],
+    scso: [],
+}
 
-let showSoMarkers = true
-let showFrMarkers = true
+const showMarkers = {
+    ocfr: true,
+    ocso: true,
+    scso: true,
+}
 
 /*
     change display state of markers and tooltips by agency.
     true -> show
     false -> hide
     undefined -> whatever state was previously stored
+    { ocfr, ocso, scso, updateState }
 */
-function refreshMarkers(fr, so) {
-    for (const marker of frMarkers) {
-        marker.setMap((fr ?? showFrMarkers) ? map : null)
-    }
+function refreshMarkers(data) {
+    for (const agency of Object.keys(markers))
+        for (const marker of markers[agency])
+            marker.setMap((data[agency] ?? showMarkers[agency]) ? map : null)
 
-    for (const tooltip of frTooltips) {
-        tooltip.setMap((fr ?? showFrMarkers) ? map : null)
-    }
+    for (const agency of Object.keys(markers))
+        for (const tooltip of tooltips[agency])
+            tooltip.setMap((data[agency] ?? showMarkers[agency]) ? map : null)
 
-    for (const marker of soMarkers) {
-        marker.setMap((so ?? showSoMarkers) ? map : null)
-    }
-
-    for (const tooltip of soTooltips) {
-        tooltip.setMap((so ?? showSoMarkers) ? map : null)
-    }
-
-    showFrMarkers = fr ?? showFrMarkers
-    showSoMarkers = so ?? showSoMarkers
+    if (data.updateState)
+        for (const agency  of Object.keys(showMarkers))
+            showMarkers[agency] = data[agency] ?? showMarkers[agency]
 }
 
 // fetch from API
@@ -142,49 +145,30 @@ async function main() {
 
         let longestTimeAgo = 0
 
-        for (const call of calls.fr) {
-            const entryTimeDateTime = luxon.DateTime.fromISO(call.entry_time)
+        for (const agency of Object.keys(calls))
+            for (const call of calls[agency]) {
+                const entryTimeDateTime = luxon.DateTime.fromISO(call.entry_time)
 
-            call.time_ago = entryTimeDateTime.toRelative()
-            call.time_ago_duration = entryTimeDateTime.diff(luxon.DateTime.now())
+                call.time_ago = entryTimeDateTime.toRelative()
+                call.time_ago_duration = entryTimeDateTime.diff(luxon.DateTime.now())
 
-            if (call.time_ago_duration < longestTimeAgo)
-                longestTimeAgo = call.time_ago_duration
-        }
-
-        for (const call of calls.so) {
-            const entryTimeDateTime = luxon.DateTime.fromISO(call.entry_time)
-
-            call.time_ago = entryTimeDateTime.toRelative()
-            call.time_ago_duration = entryTimeDateTime.diff(luxon.DateTime.now())
-
-            if (call.time_ago_duration < longestTimeAgo)
-                longestTimeAgo = call.time_ago_duration
-        }
+                if (call.time_ago_duration < longestTimeAgo)
+                    longestTimeAgo = call.time_ago_duration
+            }
 
         // remove any existing markers and tooltips
 
-        for (const marker of frMarkers)
-            marker.setMap(null)
+        refreshMarkers({ ocfr: false, ocso: false, scso: false, updateState: false })
 
-        for (const tooltip of frTooltips)
-            tooltip.setMap(null)
+        for (const agency of Object.keys(markers))
+            markers[agency] = []
 
-        for (const marker of soMarkers)
-            marker.setMap(null)
-
-        for (const tooltip of soTooltips)
-            tooltip.setMap(null)
-
-        frMarkers = []
-        frTooltips = []
-
-        soMarkers = []
-        soTooltips = []
+        for (const agency of Object.keys(tooltips))
+            tooltips[agency] = []
 
         // create markers
 
-        for (const call of calls.fr) {
+        for (const call of calls.ocfr) {
             // set pin glyph
             const glyph = document.createElement('img')
             glyph.className = 'pin-glyph'
@@ -209,11 +193,11 @@ async function main() {
                 call,
             )
 
-            frMarkers.push(marker)
-            frTooltips.push(tooltip)
+            markers.ocfr.push(marker)
+            tooltips.ocfr.push(tooltip)
         }
 
-        for (const call of calls.so) {
+        for (const call of calls.ocso) {
             const position = call.location_data.geometry.location
 
             // set pin glyph
@@ -240,11 +224,42 @@ async function main() {
                 call,
             )
 
-            soMarkers.push(marker)
-            soTooltips.push(tooltip)
+            markers.ocso.push(marker)
+            tooltips.ocso.push(tooltip)
         }
 
-        refreshMarkers(undefined, undefined)
+        for (const call of calls.scso) {
+            const position = call.location_data.geometry.location
+
+            // set pin glyph
+            const glyph = document.createElement('img')
+            glyph.className = 'pin-glyph'
+            glyph.src = '/scso_logo.png'
+
+            const pinEl = new PinElement({
+                background: '#0c6134',
+                borderColor: '#f4c474',
+                glyph,
+            })
+
+            // create marker
+            const marker = new AdvancedMarkerElement({
+                content: pinEl.element,
+                position,
+                title: '',
+            })
+
+            // create tooltip
+            const tooltip = new TooltipOverlay(
+                new google.maps.LatLng(position.lat, position.lng),
+                call,
+            )
+
+            markers.scso.push(marker)
+            tooltips.scso.push(tooltip)
+        }
+
+        refreshMarkers({ ocfr: undefined, ocso: undefined, scso: undefined, updateState: false })
     }
 
     setInterval(refreshMap, 60_000)

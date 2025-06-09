@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>OCFRD/OCSO Active Calls Map</title>
+        <title>Greater Orlando Active Calls Map</title>
         <link rel="stylesheet" href="./style.css">
         <script src="https://cdn.jsdelivr.net/npm/luxon@3.6.1/build/global/luxon.min.js"></script>
     </head>
@@ -15,14 +15,15 @@
         </div>
         <div class="fab-menu" id="fab-menu" style="display: none">
             <div class="fab-menu-header" aria-label="Close information menu" onclick="setFabMenuVisible(false)">
-                <h1>OCFRD/OCSO Active Calls Map</h1>
+                <h1>Greater Orlando Active Calls Map</h1>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" /></svg>
             </div>
             <div class="fab-menu-body">
-                <span>Displays a list of dispatched calls for service from the sheriff's office and fire rescue department in Orange County, FL.</span>
+                <span>Displays a list of dispatched calls for service from Orange County Fire Rescue, Orange County Sheriff's Office, and Seminole County Sheriff's Office.</span>
                 <span>
                     All data sourced from
-                    <a href="https://www.ocso.com/en-us/calls-for-service" rel="noopener" target="_blank">Orange County Sheriff's Office</a>
+                    <a href="https://www.ocso.com/en-us/calls-for-service" rel="noopener" target="_blank">Orange County Sheriff's Office</a>,
+                    <a href="https://www.seminolesheriff.org/ACS" rel="noopener" target="_blank">Seminole County Sheriff's Office</a>,
                     and
                     <a href="https://www.orangecountyfl.net/EmergencySafety/FireRescue/ActiveCalls.aspx" rel="noopener" target="_blank">PulsePoint</a>.
                 </span>
@@ -33,11 +34,15 @@
                 <span>
                     <label>
                         OCFRD
-                        <input type="checkbox" checked onclick="refreshMarkers(this.checked, undefined)">
+                        <input type="checkbox" checked onclick="refreshMarkers({ ocfr: this.checked, updateState: true })">
                     </label>
                     <label>
                         OCSO
-                        <input type="checkbox" checked onclick="refreshMarkers(undefined, this.checked)">
+                        <input type="checkbox" checked onclick="refreshMarkers({ ocso: this.checked, updateState: true })">
+                    </label>
+                    <label>
+                        SCSO
+                        <input type="checkbox" checked onclick="refreshMarkers({ scso: this.checked, updateState: true })">
                     </label>
                 </span>
             </div>

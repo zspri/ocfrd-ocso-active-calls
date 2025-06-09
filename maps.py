@@ -39,6 +39,7 @@ def clean_address(text: str) -> str:
     # format intersection name
     # "N ALAFAYA TRL/E COLONIAL DR" -> "N ALAFAYA TRAIL and E COLONIAL DR"
     text = text.replace('/', ' and ')
+    text = text.replace('&', 'and')
     
     # format state route name
     text = re.sub(r'SR\s?(\d+)', r'State Route \1', text)
@@ -46,8 +47,8 @@ def clean_address(text: str) -> str:
     return text.strip()
 
 
-async def get_place_data(session: ClientSession, place_name: str) -> Place | None:
-    place_name = clean_address(place_name) + ', ORANGE COUNTY'
+async def get_place_data(session: ClientSession, place_name: str, county: str = 'ORANGE') -> Place | None:
+    place_name = f'{clean_address(place_name)}, {county} COUNTY'
 
     if (cached := place_data_cache.get(place_name)):
         return cached

@@ -35,7 +35,7 @@ def parse_entry_time(call: Element) -> datetime:
         '%m/%d/%Y %I:%M:%S %p',
     )
     entry_time_dt = entry_time_dt.replace(
-        tzinfo=ZoneInfo('America/New_York')
+        tzinfo=ZoneInfo('America/New_York'),
     )
 
     return entry_time_dt

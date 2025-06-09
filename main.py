@@ -4,11 +4,13 @@ from asyncio import sleep
 from orjson import dumps
 import ocfr
 import ocso
+import scso
 
 
 headers = {'Content-Security-Policy': 'object-src \'none\'; frame-ancestors \'none\';'}
 ocfr_calls: list[ocfr.Call] = []
 ocso_calls: list[ocso.Call] = []
+scso_calls: list[scso.Call] = []
 orjson_encoder = lambda x: dumps(x, default=str).decode('utf-8')
 routes = web.RouteTableDef()
 session = web.AppKey('session', ClientSession)
@@ -34,7 +36,7 @@ async def on_cleanup(app: web.Application):
 # Background tasks
 
 async def get_active_calls_loop(app: web.Application):
-    global ocfr_calls, ocso_calls
+    global ocfr_calls, ocso_calls, scso_calls
 
     while True:
         try:
@@ -43,6 +45,9 @@ async def get_active_calls_loop(app: web.Application):
 
             ocso_calls = await ocso.get_active_calls(app[session])
             app.logger.info('Fetched list of active OCSO calls (%d)', len(ocso_calls))
+
+            scso_calls = await scso.get_active_calls(app[session])
+            app.logger.info('Fetched list of active SCSO calls (%d)', len(scso_calls))
         except Exception:
             app.logger.exception('Failed to fetch active calls')
 
@@ -60,8 +65,9 @@ async def active_calls(request: web.Request) -> web.Response:
 
     return web.json_response(
         {
-            'fr': ocfr_calls,
-            'so': ocso_calls,
+            'ocfr': ocfr_calls,
+            'ocso': ocso_calls,
+            'scso': scso_calls,
         },
         dumps=orjson_encoder,
     )
